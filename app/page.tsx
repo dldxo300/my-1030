@@ -1,27 +1,11 @@
 "use client";
 
-/**
- * @file app/page.tsx
- * @description 홈페이지 - 상품 목록 표시 및 카테고리 필터 기능
- *
- * 주요 기능:
- * 1. 상품 목록 표시 (Grid 레이아웃)
- * 2. 카테고리 필터링
- * 3. 로딩 및 에러 상태 처리
- *
- * @dependencies
- * - components/products/category-filter: CategoryFilter
- * - components/products/product-grid: ProductGrid
- * - lib/supabase/queries/products: getAllProducts, getProductsByCategory
- * - types/product: Product, Category
- */
-
 import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { CategoryFilter } from "@/components/products/category-filter";
 import { ProductGrid } from "@/components/products/product-grid";
 import { getAllProducts, getProductsByCategory } from "@/lib/supabase/queries/products";
 import type { Product, Category } from "@/types/product";
-import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
