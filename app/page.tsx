@@ -1,41 +1,112 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { RiSupabaseFill } from "react-icons/ri";
+"use client";
+
+/**
+ * @file app/page.tsx
+ * @description 홈페이지 - 상품 목록 표시 및 카테고리 필터 기능
+ *
+ * 주요 기능:
+ * 1. 상품 목록 표시 (Grid 레이아웃)
+ * 2. 카테고리 필터링
+ * 3. 로딩 및 에러 상태 처리
+ *
+ * @dependencies
+ * - components/products/category-filter: CategoryFilter
+ * - components/products/product-grid: ProductGrid
+ * - lib/supabase/queries/products: getAllProducts, getProductsByCategory
+ * - types/product: Product, Category
+ */
+
+import { useState, useEffect } from "react";
+import { CategoryFilter } from "@/components/products/category-filter";
+import { ProductGrid } from "@/components/products/product-grid";
+import { getAllProducts, getProductsByCategory } from "@/lib/supabase/queries/products";
+import type { Product, Category } from "@/types/product";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
+  const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 상품 데이터 로드
+  useEffect(() => {
+    async function loadProducts() {
+      console.group("🏠 [HomePage] 상품 로딩 시작");
+      console.log(`📦 선택된 카테고리: ${selectedCategory}`);
+      
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        let data: Product[];
+        
+        if (selectedCategory === "all") {
+          data = await getAllProducts();
+        } else {
+          data = await getProductsByCategory(selectedCategory);
+        }
+
+        setProducts(data);
+        console.log(`✅ [HomePage] 표시 중인 상품 개수: ${data.length}`);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "상품 로딩 실패";
+        console.error("❌ [HomePage] 에러:", errorMessage);
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+        console.groupEnd();
+      }
+    }
+
+    loadProducts();
+  }, [selectedCategory]);
+
+  const handleCategoryChange = (category: Category | "all") => {
+    console.log(`🔄 [HomePage] 카테고리 변경: ${selectedCategory} → ${category}`);
+    setSelectedCategory(category);
+  };
+
   return (
-    <main className="min-h-[calc(100vh-80px)] flex items-center px-8 py-16 lg:py-24">
-      <section className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start lg:items-center">
-        {/* 좌측: 환영 메시지 */}
-        <div className="flex flex-col gap-8">
-          <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-            SaaS 앱 템플릿에 오신 것을 환영합니다
+    <main className="min-h-screen px-4 py-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* 헤더 */}
+        <div className="space-y-2">
+          <h1 className="text-3xl lg:text-4xl font-bold">
+            상품 목록
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
-            Next.js, Shadcn, Clerk, Supabase, TailwindCSS로 구동되는 완전한
-            기능의 템플릿으로 다음 프로젝트를 시작하세요.
+          <p className="text-gray-600 dark:text-gray-400">
+            다양한 카테고리의 상품을 둘러보세요
           </p>
         </div>
 
-        {/* 우측: 버튼 두 개 세로 정렬 */}
-        <div className="flex flex-col gap-6">
-          <Link href="/storage-test" className="w-full">
-            <Button className="w-full h-28 flex items-center justify-center gap-4 text-xl shadow-lg hover:shadow-xl transition-shadow">
-              <RiSupabaseFill className="w-8 h-8" />
-              <span>Storage 파일 업로드 테스트</span>
-            </Button>
-          </Link>
-          <Link href="/auth-test" className="w-full">
-            <Button
-              className="w-full h-28 flex items-center justify-center gap-4 text-xl shadow-lg hover:shadow-xl transition-shadow"
-              variant="outline"
-            >
-              <RiSupabaseFill className="w-8 h-8" />
-              <span>Clerk + Supabase 인증 연동</span>
-            </Button>
-          </Link>
-        </div>
-      </section>
+        {/* 카테고리 필터 */}
+        <CategoryFilter
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+
+        {/* 상품 그리드 또는 로딩/에러 상태 */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <span className="ml-3 text-gray-600 dark:text-gray-400">
+              상품을 불러오는 중...
+            </span>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-red-600 dark:text-red-400 mb-2">
+              오류가 발생했습니다
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {error}
+            </p>
+          </div>
+        ) : (
+          <ProductGrid products={products} />
+        )}
+      </div>
     </main>
   );
 }
