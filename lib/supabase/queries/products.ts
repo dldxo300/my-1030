@@ -13,7 +13,7 @@
  */
 
 import { supabase } from "@/lib/supabase/client";
-import type { Product, Category } from "@/types/product";
+import type { Product, Category, SortOption, PaginatedProducts } from "@/types/product";
 
 /**
  * 모든 활성 상품 조회
@@ -214,6 +214,101 @@ export async function getPopularProducts(
     return finalProducts;
   } catch (error) {
     console.error("❌ [getPopularProducts] 예외 발생:", error);
+    console.groupEnd();
+    throw error;
+  }
+}
+
+/**
+ * 페이지네이션 및 정렬을 지원하는 통합 상품 조회 함수
+ *
+ * @param {Object} options - 쿼리 옵션
+ * @param {Category | "all"} options.category - 카테고리 (기본값: "all")
+ * @param {SortOption} options.sort - 정렬 옵션 (기본값: "latest")
+ * @param {number} options.page - 페이지 번호 (1부터 시작, 기본값: 1)
+ * @param {number} options.pageSize - 페이지당 상품 수 (기본값: 12)
+ * @returns {Promise<PaginatedProducts>} 페이지네이션된 상품 목록
+ */
+export async function getProductsWithFilters(options: {
+  category?: Category | "all";
+  sort?: SortOption;
+  page?: number;
+  pageSize?: number;
+}): Promise<PaginatedProducts> {
+  const {
+    category = "all",
+    sort = "latest",
+    page = 1,
+    pageSize = 12,
+  } = options;
+
+  console.group("🔍 [getProductsWithFilters] 상품 조회 시작");
+  console.log(`📦 카테고리: ${category}`);
+  console.log(`🔢 정렬: ${sort}`);
+  console.log(`📄 페이지: ${page} (${pageSize}개씩)`);
+
+  try {
+    // 1. 기본 쿼리 생성
+    let query = supabase.from("products").select("*", { count: "exact" });
+
+    // 2. 활성 상품만 필터링
+    query = query.eq("is_active", true);
+
+    // 3. 카테고리 필터링
+    if (category !== "all") {
+      query = query.eq("category", category);
+    }
+
+    // 4. 정렬 적용
+    switch (sort) {
+      case "latest":
+        query = query.order("created_at", { ascending: false });
+        break;
+      case "price_asc":
+        query = query.order("price", { ascending: true });
+        break;
+      case "price_desc":
+        query = query.order("price", { ascending: false });
+        break;
+      case "popular":
+        // 인기순은 조회수 기준 (추후 판매량 포함 가능)
+        query = query.order("view_count", { ascending: false, nullsFirst: false });
+        break;
+      default:
+        query = query.order("created_at", { ascending: false });
+    }
+
+    // 5. 페이지네이션 적용
+    const offset = (page - 1) * pageSize;
+    query = query.range(offset, offset + pageSize - 1);
+
+    // 6. 쿼리 실행
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error("❌ [getProductsWithFilters] 에러 발생:", error);
+      console.groupEnd();
+      throw new Error(`상품 조회 실패: ${error.message}`);
+    }
+
+    const total = count ?? 0;
+    const totalPages = Math.ceil(total / pageSize);
+
+    console.log(`✅ [getProductsWithFilters] 조회 성공`);
+    console.log(`📊 전체 상품 수: ${total}`);
+    console.log(`📄 전체 페이지 수: ${totalPages}`);
+    console.log(`📦 현재 페이지 상품 수: ${data?.length ?? 0}`);
+    console.groupEnd();
+
+    return {
+      products: (data as Product[]) ?? [],
+      total,
+      page,
+      pageSize,
+      totalPages,
+    };
+  } catch (error) {
+    console.error("❌ [getProductsWithFilters] 예외 발생:", error);
     console.groupEnd();
     throw error;
   }

@@ -44,3 +44,33 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   home: "생활/가정",
 };
 
+/**
+ * 정렬 옵션 타입
+ */
+export type SortOption =
+  | "latest" // 최신순
+  | "price_asc" // 가격 낮은순
+  | "price_desc" // 가격 높은순
+  | "popular"; // 인기순
+
+/**
+ * 정렬 옵션 한글 표시명 매핑
+ */
+export const SORT_LABELS: Record<SortOption, string> = {
+  latest: "최신순",
+  price_asc: "가격 낮은순",
+  price_desc: "가격 높은순",
+  popular: "인기순",
+};
+
+/**
+ * 페이지네이션 결과 인터페이스
+ */
+export interface PaginatedProducts {
+  products: Product[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
