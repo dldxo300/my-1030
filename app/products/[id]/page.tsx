@@ -19,6 +19,7 @@ import { Package, AlertCircle } from "lucide-react";
 import { getProductById } from "@/lib/supabase/queries/products";
 import { CATEGORY_LABELS } from "@/types/product";
 import type { Product } from "@/types/product";
+import { AddToCartButton } from "@/components/products/add-to-cart-button";
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
@@ -185,18 +186,12 @@ export default async function ProductDetailPage({
                 </div>
               </div>
 
-              {/* 장바구니 추가 버튼 영역 (Phase 3에서 구현) */}
-              <div className="pt-6">
-                <button
-                  disabled
-                  className="w-full py-4 px-6 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg font-medium cursor-not-allowed"
-                >
-                  장바구니 추가 (준비 중)
-                </button>
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                  * Phase 3에서 장바구니 기능이 추가될 예정입니다
-                </p>
-              </div>
+              {/* 장바구니 추가 버튼 영역 */}
+              <AddToCartButton
+                productId={product.id}
+                productName={product.name}
+                stockQuantity={product.stock_quantity}
+              />
             </div>
           </div>
         </div>
