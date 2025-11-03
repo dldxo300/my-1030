@@ -220,6 +220,48 @@ export async function getPopularProducts(
 }
 
 /**
+ * 상품 ID로 단일 상품 조회
+ *
+ * @param {string} id - 조회할 상품 ID
+ * @returns {Promise<Product | null>} 상품 객체 또는 null (존재하지 않는 경우)
+ */
+export async function getProductById(id: string): Promise<Product | null> {
+  console.group("🔍 [getProductById] 상품 상세 조회 시작");
+  console.log(`📦 상품 ID: ${id}`);
+
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .eq("is_active", true)
+      .single();
+
+    if (error) {
+      // PGRST116은 "결과 없음" 에러 코드
+      if (error.code === "PGRST116") {
+        console.log("⚠️ [getProductById] 상품을 찾을 수 없습니다");
+        console.groupEnd();
+        return null;
+      }
+
+      console.error("❌ [getProductById] 에러 발생:", error);
+      console.groupEnd();
+      throw new Error(`상품 조회 실패: ${error.message}`);
+    }
+
+    console.log(`✅ [getProductById] 상품 조회 성공: ${data.name}`);
+    console.groupEnd();
+
+    return data as Product;
+  } catch (error) {
+    console.error("❌ [getProductById] 예외 발생:", error);
+    console.groupEnd();
+    throw error;
+  }
+}
+
+/**
  * 페이지네이션 및 정렬을 지원하는 통합 상품 조회 함수
  *
  * @param {Object} options - 쿼리 옵션

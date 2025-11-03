@@ -12,6 +12,7 @@
  * - types/product: Product, CATEGORY_LABELS
  */
 
+import Link from "next/link";
 import type { Product } from "@/types/product";
 import { CATEGORY_LABELS } from "@/types/product";
 import { Package } from "lucide-react";
@@ -34,7 +35,10 @@ export function ProductCard({ product }: ProductCardProps) {
   const isLowStock = product.stock_quantity < 10;
 
   return (
-    <div className="group border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800">
+    <Link 
+      href={`/products/${product.id}`}
+      className="group border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800 block"
+    >
       {/* 상품 이미지 (플레이스홀더) */}
       <div className="aspect-square bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
         <Package className="w-20 h-20 text-gray-400 dark:text-gray-500" />
@@ -75,7 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
