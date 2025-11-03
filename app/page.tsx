@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { CategoryFilter } from "@/components/products/category-filter";
 import { ProductGrid } from "@/components/products/product-grid";
+import { PopularProducts } from "@/components/products/popular-products";
 import { getAllProducts, getProductsByCategory } from "@/lib/supabase/queries/products";
 import type { Product, Category } from "@/types/product";
 
@@ -54,6 +55,9 @@ export default function Home() {
   return (
     <main className="min-h-screen px-4 py-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* 인기 상품 섹션 */}
+        <PopularProducts limit={6} />
+
         {/* 헤더 */}
         <div>
           <h1 className="text-3xl font-bold mb-8">전체 상품</h1>

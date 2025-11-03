@@ -26,6 +26,7 @@ export interface Product {
   category: Category | null;
   stock_quantity: number;
   is_active: boolean;
+  view_count?: number;
   created_at: string;
   updated_at: string;
 }
