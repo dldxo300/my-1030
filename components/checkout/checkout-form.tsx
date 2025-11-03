@@ -83,16 +83,17 @@ export function CheckoutForm() {
 
       const result = await createOrder(orderInput);
 
-      if (result.success) {
-        console.log("✅ [CheckoutForm] 주문 생성 성공:", result.orderId);
-        console.groupEnd();
-        // 주문 완료 페이지로 이동
-        router.push(`/checkout/success?orderId=${result.orderId}`);
-      } else {
+      if (result.success === false) {
+        // success가 false일 때는 error 속성이 존재함
         console.error("❌ [CheckoutForm] 주문 생성 실패:", result.error);
         console.groupEnd();
         setErrorMessage(result.error);
         setIsSubmitting(false);
+      } else {
+        console.log("✅ [CheckoutForm] 주문 생성 성공:", result.orderId);
+        console.groupEnd();
+        // 주문 완료 페이지로 이동
+        router.push(`/checkout/success?orderId=${result.orderId}`);
       }
     } catch (error) {
       console.error("❌ [CheckoutForm] 예외 발생:", error);

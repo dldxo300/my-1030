@@ -191,24 +191,29 @@ export async function getPopularProducts(
     // 7. 점수 기준 내림차순 정렬
     productsWithScore.sort((a, b) => b.composite_score - a.composite_score);
 
-    // 8. 정확히 limit개만 반환
-    const result = productsWithScore.slice(0, Math.min(limit, productsWithScore.length));
-
-    // 9. sales_count 제거하고 Product 타입으로 반환
-    const finalProducts: Product[] = result.map(({ sales_count, composite_score, view_score, sales_score, ...product }) => product);
+    // 8. 정확히 limit개만 반환 및 디버깅 로그
+    const topProducts = productsWithScore.slice(0, Math.min(limit, productsWithScore.length));
 
     console.log(
-      `✅ [getPopularProducts] 인기 상품 ${finalProducts.length}개 반환`
+      `✅ [getPopularProducts] 인기 상품 ${topProducts.length}개 반환`
     );
     console.log(
       `🏆 [getPopularProducts] 상위 상품 점수:`,
-      result.slice(0, 3).map((p) => ({
+      topProducts.slice(0, 3).map((p) => ({
         name: p.name,
         score: p.composite_score.toFixed(3),
         view: p.view_count,
         sales: p.sales_count,
       }))
     );
+
+    // 9. 추가 속성 제거하고 Product 타입으로 반환
+    const finalProducts: Product[] = topProducts.map((item) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { sales_count, composite_score, view_score, sales_score, ...product } = item;
+      return product;
+    });
+
     console.groupEnd();
 
     return finalProducts;

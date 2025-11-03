@@ -21,7 +21,6 @@ import { ShoppingCart, Package } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getCartItems } from "@/actions/cart";
-import { CartItem } from "@/components/cart/cart-item";
 import { CartSummary } from "@/components/cart/cart-summary";
 import { CartClientWrapper } from "@/components/cart/cart-client-wrapper";
 

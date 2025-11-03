@@ -15,10 +15,10 @@
  */
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Package, AlertCircle } from "lucide-react";
 import { getProductById } from "@/lib/supabase/queries/products";
 import { CATEGORY_LABELS } from "@/types/product";
-import type { Product } from "@/types/product";
 import { AddToCartButton } from "@/components/products/add-to-cart-button";
 
 interface ProductDetailPageProps {
@@ -213,12 +213,12 @@ export default async function ProductDetailPage({
             <p className="text-red-700 dark:text-red-400 mb-4">
               {error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다."}
             </p>
-            <a
+            <Link
               href="/products"
               className="inline-block px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               상품 목록으로 돌아가기
-            </a>
+            </Link>
           </div>
         </div>
       </main>

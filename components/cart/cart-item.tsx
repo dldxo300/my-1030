@@ -69,12 +69,13 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
     try {
       const result = await updateCartQuantity(item.id, newQuantity);
 
-      if (result.success) {
-        console.log("✅ [CartItem] 수량 변경 성공");
-        onUpdate();
-      } else if (!result.success) {
+      if (result.success === false) {
+        // success가 false일 때는 error 속성이 존재함
         console.error("❌ [CartItem] 수량 변경 실패:", result.error);
         setErrorMessage(result.error);
+      } else {
+        console.log("✅ [CartItem] 수량 변경 성공");
+        onUpdate();
       }
     } catch (error) {
       console.error("❌ [CartItem] 예외 발생:", error);
@@ -98,12 +99,13 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
     try {
       const result = await removeFromCart(item.id);
 
-      if (result.success) {
-        console.log("✅ [CartItem] 삭제 성공");
-        onUpdate();
-      } else if (!result.success) {
+      if (result.success === false) {
+        // success가 false일 때는 error 속성이 존재함
         console.error("❌ [CartItem] 삭제 실패:", result.error);
         setErrorMessage(result.error);
+      } else {
+        console.log("✅ [CartItem] 삭제 성공");
+        onUpdate();
       }
     } catch (error) {
       console.error("❌ [CartItem] 예외 발생:", error);

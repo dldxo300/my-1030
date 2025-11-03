@@ -68,7 +68,11 @@ export function AddToCartButton({
       // 3. 장바구니 추가
       const result = await addToCart(productId, 1);
 
-      if (result.success) {
+      if (result.success === false) {
+        // success가 false일 때는 error 속성이 존재함
+        console.error("❌ [AddToCartButton] 장바구니 추가 실패:", result.error);
+        setErrorMessage(result.error);
+      } else {
         console.log("✅ [AddToCartButton] 장바구니 추가 성공");
         
         // 4. 장바구니 개수 업데이트
@@ -76,9 +80,6 @@ export function AddToCartButton({
         
         // 5. 성공 Dialog 표시
         setDialogOpen(true);
-      } else {
-        console.error("❌ [AddToCartButton] 장바구니 추가 실패:", result.error);
-        setErrorMessage(result.error);
       }
     } catch (error) {
       console.error("❌ [AddToCartButton] 예외 발생:", error);
