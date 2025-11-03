@@ -32,8 +32,8 @@
     - [x] 상품 카드 클릭 시 상세 페이지 이동 링크 추가 ✅
   - [ ] 어드민 상품 등록은 대시보드에서 수기 관리(문서화만)
 
-- [ ] Phase 3: 장바구니 & 주문
-  - [x] 장바구니 기능 - 완료 ✅
+- [x] Phase 3: 장바구니 & 주문 (PRD 기준: 1주) - 완료 ✅
+  - [x] 장바구니 기능 (추가/삭제/수량 변경) - 완료 ✅
     - [x] 타입 정의 (`types/cart.ts`)
     - [x] Server Actions (`actions/cart.ts`)
       - [x] 장바구니 추가/수량 업데이트 (재고 확인 포함)
@@ -53,8 +53,37 @@
       - [x] 재고 부족 경고 표시
       - [x] 아이템 삭제 기능
       - [x] 주문 요약 (상품 종류, 총 수량, 총 금액)
-  - [ ] 주문 생성 흐름(주소/메모 입력 포함)
-  - [ ] 주문테이블 저장(`orders`, `order_items`) 및 합계 검증
+      - [x] "주문하기" 버튼 추가 (`CartSummary` 컴포넌트)
+  - [x] 주문 프로세스 구현 (주소/메모 입력 포함) - 완료 ✅
+    - [x] 타입 정의 (`types/order.ts`)
+      - [x] ShippingAddress, Order, OrderItem, OrderWithItems
+      - [x] CreateOrderInput, OrderActionResult
+    - [x] 주문 쿼리 함수 (`lib/supabase/queries/order.ts`)
+      - [x] createOrder (트랜잭션 처리: 재고 확인, 주문 생성, 재고 차감, 장바구니 비우기)
+      - [x] getOrderById (order_items 포함)
+      - [x] getUserOrders (사용자별 주문 목록)
+    - [x] 주문 Server Actions (`actions/order.ts`)
+      - [x] createOrder (배송지 유효성 검사 + 주문 생성)
+      - [x] getOrder (주문 조회)
+      - [x] getUserOrders (주문 목록 조회)
+    - [x] 체크아웃 컴포넌트
+      - [x] CheckoutForm (`components/checkout/checkout-form.tsx`)
+        - [x] react-hook-form + Zod 유효성 검사
+        - [x] 배송지 입력 (수령인, 연락처, 우편번호, 주소1, 주소2)
+        - [x] 주문 메모 입력 (선택)
+      - [x] CheckoutSummary (`components/checkout/checkout-summary.tsx`)
+        - [x] 주문 요약 (읽기 전용)
+    - [x] 체크아웃 페이지 (`app/checkout/page.tsx`)
+      - [x] 장바구니 정보 조회
+      - [x] 배송지 입력 폼 표시
+      - [x] 주문 요약 정보 표시
+      - [x] 빈 장바구니 체크 및 리다이렉트
+    - [x] 주문 완료 페이지 (`app/checkout/success/page.tsx`)
+      - [x] 주문 번호 표시
+      - [x] 주문 상세 정보 (주문 내역, 배송지, 총액)
+      - [x] 홈/쇼핑 계속하기 버튼
+  - [x] 주문 테이블 연동 (`orders`, `order_items`) 및 합계 검증 - 완료 ✅
+  - [x] Supabase 재고 차감 함수 생성 (`decrement_stock`) - SQL 실행 대기 중 ⏳
 
 - [ ] Phase 4: 결제 통합 (Toss Payments 테스트 모드)
   - [ ] 결제위젯 연동 및 클라이언트 플로우 구축

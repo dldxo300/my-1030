@@ -5,15 +5,17 @@
  * 주요 기능:
  * 1. 전체 상품 개수 표시
  * 2. 전체 금액 합계 표시
- * 3. 주문하기 버튼 (Phase 3 후반부에서 구현)
+ * 3. 주문하기 버튼
  *
  * @dependencies
  * - types/cart: CartItemWithProduct
  * - components/ui/button: Button
+ * - next/link: Link
  */
 
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag } from "lucide-react";
 import type { CartItemWithProduct } from "@/types/cart";
@@ -81,18 +83,19 @@ export function CartSummary({ items }: CartSummaryProps) {
         </div>
       </div>
 
-      {/* 주문하기 버튼 (Phase 3 후반부에서 구현) */}
-      <Button
-        disabled
-        size="lg"
-        className="w-full font-semibold"
-      >
-        <ShoppingBag className="w-5 h-5 mr-2" />
-        주문하기 (준비 중)
-      </Button>
+      {/* 주문하기 버튼 */}
+      <Link href="/checkout">
+        <Button
+          size="lg"
+          className="w-full font-semibold"
+        >
+          <ShoppingBag className="w-5 h-5 mr-2" />
+          주문하기
+        </Button>
+      </Link>
 
       <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
-        * 주문 기능은 Phase 3 후반부에 추가될 예정입니다
+        * 배송지 정보를 입력하고 주문을 완료하세요
       </p>
     </div>
   );

@@ -91,19 +91,19 @@ export async function getCartItemsWithProducts(
  *
  * @param {SupabaseClient} supabase - Supabase 클라이언트
  * @param {string} clerkId - 사용자 Clerk ID
- * @returns {Promise<number>} 장바구니 아이템 총 개수 (수량 합계)
+ * @returns {Promise<number>} 장바구니에 담긴 상품 종류 수
  */
 export async function getCartItemCount(
   supabase: SupabaseClient,
   clerkId: string
 ): Promise<number> {
-  console.group("🔢 [getCartItemCount] 장바구니 개수 조회 시작");
+  console.group("🔢 [getCartItemCount] 장바구니 상품 종류 수 조회 시작");
   console.log(`👤 사용자 ID: ${clerkId}`);
 
   try {
     const { data, error } = await supabase
       .from("cart_items")
-      .select("quantity")
+      .select("id")
       .eq("clerk_id", clerkId);
 
     if (error) {
@@ -112,13 +112,10 @@ export async function getCartItemCount(
       throw new Error(`장바구니 개수 조회 실패: ${error.message}`);
     }
 
-    // 수량 합계 계산
-    const totalCount = (data || []).reduce(
-      (sum, item) => sum + (item.quantity || 0),
-      0
-    );
+    // 장바구니 항목(상품 종류) 개수
+    const totalCount = (data || []).length;
 
-    console.log(`✅ [getCartItemCount] 총 ${totalCount}개`);
+    console.log(`✅ [getCartItemCount] 총 ${totalCount}종류의 상품`);
     console.groupEnd();
 
     return totalCount;

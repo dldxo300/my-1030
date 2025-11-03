@@ -72,7 +72,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
       if (result.success) {
         console.log("✅ [CartItem] 수량 변경 성공");
         onUpdate();
-      } else {
+      } else if (!result.success) {
         console.error("❌ [CartItem] 수량 변경 실패:", result.error);
         setErrorMessage(result.error);
       }
@@ -101,7 +101,7 @@ export function CartItem({ item, onUpdate }: CartItemProps) {
       if (result.success) {
         console.log("✅ [CartItem] 삭제 성공");
         onUpdate();
-      } else {
+      } else if (!result.success) {
         console.error("❌ [CartItem] 삭제 실패:", result.error);
         setErrorMessage(result.error);
       }

@@ -14,7 +14,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import { getCartItemCount } from "@/lib/supabase/queries/cart";
@@ -30,28 +30,36 @@ export function useCartCount() {
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchCount = async () => {
+  const fetchCount = useCallback(async () => {
+    console.group("🔢 [useCartCount] 장바구니 개수 조회 시작");
+    
     if (!userId) {
+      console.log("⚠️ [useCartCount] 비로그인 사용자");
       setCount(0);
       setIsLoading(false);
+      console.groupEnd();
       return;
     }
+
+    console.log(`👤 사용자 ID: ${userId}`);
 
     try {
       setIsLoading(true);
       const total = await getCartItemCount(supabase, userId);
       setCount(total);
+      console.log(`✅ [useCartCount] 조회 성공 (${total}개)`);
     } catch (error) {
-      console.error("장바구니 개수 조회 실패:", error);
+      console.error("❌ [useCartCount] 장바구니 개수 조회 실패:", error);
       setCount(0);
     } finally {
       setIsLoading(false);
+      console.groupEnd();
     }
-  };
+  }, [userId, supabase]);
 
   useEffect(() => {
     fetchCount();
-  }, [userId]);
+  }, [fetchCount]);
 
   return {
     count,
