@@ -55,20 +55,13 @@ export default function Home() {
     <main className="min-h-screen px-4 py-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* 헤더 */}
-        <div className="space-y-2">
-          <h1 className="text-3xl lg:text-4xl font-bold">
-            상품 목록
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            다양한 카테고리의 상품을 둘러보세요
-          </p>
+        <div>
+          <h1 className="text-3xl font-bold mb-8">전체 상품</h1>
+          <CategoryFilter
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+          />
         </div>
-
-        {/* 카테고리 필터 */}
-        <CategoryFilter
-          selectedCategory={selectedCategory}
-          onCategoryChange={handleCategoryChange}
-        />
 
         {/* 상품 그리드 또는 로딩/에러 상태 */}
         {isLoading ? (

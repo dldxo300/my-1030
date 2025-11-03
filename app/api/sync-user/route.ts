@@ -12,13 +12,16 @@ export async function POST() {
   console.group("🔐 API: /api/sync-user");
 
   try {
-    // Clerk 인증 확인
+    // Clerk 인증 확인 (미들웨어에서 이미 보호하고 있지만 추가 체크)
     console.log("1️⃣ Checking Clerk authentication...");
-    const { userId } = await auth();
-    console.log("   userId:", userId);
+    const authData = await auth();
+    const userId = authData.userId;
+    
+    console.log("   auth() result:", { userId, has: !!userId });
 
     if (!userId) {
       console.error("❌ No userId found - Unauthorized");
+      console.error("   auth data:", JSON.stringify(authData, null, 2));
       console.groupEnd();
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
