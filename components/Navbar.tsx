@@ -4,7 +4,7 @@ import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 import { useCartCount } from "@/hooks/use-cart-count";
 
 const Navbar = () => {
@@ -17,6 +17,15 @@ const Navbar = () => {
       </Link>
       <div className="flex gap-4 items-center">
         <SignedIn>
+          {/* 마이페이지 버튼 */}
+          <Link
+            href="/my-page"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            aria-label="마이페이지"
+          >
+            <User className="w-6 h-6" />
+          </Link>
+
           {/* 장바구니 아이콘 버튼 */}
           <Link
             href="/cart"

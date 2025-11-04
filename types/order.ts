@@ -67,3 +67,10 @@ export type OrderActionResult =
   | { success: true; message: string; orderId: string }
   | { success: false; error: string };
 
+/**
+ * 주문 취소 결과 타입
+ */
+export type CancelOrderResult =
+  | { success: true; message: string }
+  | { success: false; error: string };
+

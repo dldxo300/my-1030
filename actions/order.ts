@@ -22,6 +22,7 @@ import {
   createOrder as createOrderQuery,
   getOrderById as getOrderByIdQuery,
   getUserOrders as getUserOrdersQuery,
+  cancelOrder as cancelOrderQuery,
 } from "@/lib/supabase/queries/order";
 import { getCartItems } from "./cart";
 import type {
@@ -29,6 +30,7 @@ import type {
   OrderActionResult,
   OrderWithItems,
   Order,
+  CancelOrderResult,
 } from "@/types/order";
 
 /**
@@ -204,6 +206,52 @@ export async function getUserOrders(): Promise<Order[]> {
     console.error("❌ [getUserOrders Action] 예외 발생:", error);
     console.groupEnd();
     return [];
+  }
+}
+
+/**
+ * 주문 취소 Server Action
+ *
+ * @param {string} orderId - 취소할 주문 ID
+ * @returns {Promise<CancelOrderResult>} 취소 결과
+ */
+export async function cancelOrder(orderId: string): Promise<CancelOrderResult> {
+  console.group("❌ [cancelOrder Action] 주문 취소 시작");
+  console.log(`📦 주문 ID: ${orderId}`);
+
+  try {
+    // 1. 인증 확인
+    const { userId: clerkId } = await auth();
+
+    if (!clerkId) {
+      console.error("❌ [cancelOrder Action] 인증되지 않은 사용자");
+      console.groupEnd();
+      return { success: false, error: "로그인이 필요합니다." };
+    }
+
+    console.log(`👤 사용자 ID: ${clerkId}`);
+
+    // 2. 주문 취소 처리
+    const supabase = createClerkSupabaseClient();
+    const result = await cancelOrderQuery(supabase, orderId, clerkId);
+
+    if (result.success) {
+      console.log("✅ [cancelOrder Action] 주문 취소 완료");
+      console.groupEnd();
+      return result;
+    } else if (result.success === false) {
+      console.error("❌ [cancelOrder Action] 주문 취소 실패:", result);
+      console.groupEnd();
+      return result;
+    }
+  } catch (error) {
+    console.error("❌ [cancelOrder Action] 예외 발생:", error);
+    console.groupEnd();
+
+    const errorMessage =
+      error instanceof Error ? error.message : "주문 취소 중 오류가 발생했습니다.";
+
+    return { success: false, error: errorMessage };
   }
 }
 

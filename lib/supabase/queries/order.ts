@@ -18,6 +18,7 @@ import type {
   Order,
   OrderWithItems,
   CreateOrderInput,
+  CancelOrderResult,
 } from "@/types/order";
 import type { CartItemWithProduct } from "@/types/cart";
 
@@ -285,6 +286,113 @@ export async function getUserOrders(
     console.error("❌ [getUserOrders] 예외 발생:", error);
     console.groupEnd();
     throw error;
+  }
+}
+
+/**
+ * 주문 취소
+ *
+ * @param {SupabaseClient} supabase - Supabase 클라이언트
+ * @param {string} orderId - 취소할 주문 ID
+ * @param {string} clerkId - 사용자 Clerk ID (본인 확인용)
+ * @returns {Promise<CancelOrderResult>} 취소 결과
+ */
+export async function cancelOrder(
+  supabase: SupabaseClient,
+  orderId: string,
+  clerkId: string
+): Promise<CancelOrderResult> {
+  console.group("❌ [cancelOrder] 주문 취소 시작");
+  console.log(`📦 주문 ID: ${orderId}`);
+  console.log(`👤 사용자 ID: ${clerkId}`);
+
+  try {
+    // 1. 주문 조회 및 상태 확인 (pending만 취소 가능)
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("status")
+      .eq("id", orderId)
+      .eq("clerk_id", clerkId)
+      .single();
+
+    if (orderError) {
+      console.error("❌ [cancelOrder] 주문 조회 실패:", orderError);
+      console.groupEnd();
+      return { success: false, error: "주문을 찾을 수 없습니다." };
+    }
+
+    if (!order) {
+      console.warn("⚠️ [cancelOrder] 주문을 찾을 수 없음");
+      console.groupEnd();
+      return { success: false, error: "주문을 찾을 수 없습니다." };
+    }
+
+    if (order.status !== "pending") {
+      console.warn(`⚠️ [cancelOrder] 취소 불가능한 상태: ${order.status}`);
+      console.groupEnd();
+      return { success: false, error: "결제 대기 상태인 주문만 취소할 수 있습니다." };
+    }
+
+    console.log("✅ [cancelOrder] 주문 상태 확인 완료 (pending)");
+
+    // 2. 주문 상세 아이템 조회 (재고 복구용)
+    const { data: orderItems, error: itemsError } = await supabase
+      .from("order_items")
+      .select("product_id, quantity")
+      .eq("order_id", orderId);
+
+    if (itemsError) {
+      console.error("❌ [cancelOrder] 주문 상세 조회 실패:", itemsError);
+      console.groupEnd();
+      return { success: false, error: "주문 상세 조회에 실패했습니다." };
+    }
+
+    console.log(`📦 주문 아이템 수: ${orderItems?.length || 0}`);
+
+    // 3. 재고 복구 (트랜잭션)
+    for (const item of orderItems || []) {
+      const { error: stockError } = await supabase.rpc("increment_stock", {
+        product_id: item.product_id,
+        quantity: item.quantity,
+      });
+
+      if (stockError) {
+        console.error(
+          `⚠️ [cancelOrder] 재고 복구 실패: 상품 ${item.product_id}`,
+          stockError
+        );
+        console.groupEnd();
+        return { success: false, error: "재고 복구에 실패했습니다." };
+      }
+    }
+
+    console.log("✅ [cancelOrder] 재고 복구 완료");
+
+    // 4. 주문 상태를 cancelled로 업데이트
+    const { error: updateError } = await supabase
+      .from("orders")
+      .update({ status: "cancelled", updated_at: new Date().toISOString() })
+      .eq("id", orderId)
+      .eq("clerk_id", clerkId);
+
+    if (updateError) {
+      console.error("❌ [cancelOrder] 주문 상태 업데이트 실패:", updateError);
+      console.groupEnd();
+      return { success: false, error: "주문 취소에 실패했습니다." };
+    }
+
+    console.log("✅ [cancelOrder] 주문 취소 완료");
+    console.groupEnd();
+
+    return { success: true, message: "주문이 취소되었습니다." };
+  } catch (error) {
+    console.error("❌ [cancelOrder] 예외 발생:", error);
+    console.groupEnd();
+
+    const errorMessage =
+      error instanceof Error ? error.message : "주문 취소 중 오류가 발생했습니다.";
+
+    return { success: false, error: errorMessage };
   }
 }
 
